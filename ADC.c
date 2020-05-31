@@ -31,18 +31,11 @@
 ******************************************************************************/
 
 /*
- * helloworld.c: simple test application
+ * ADC.c: simple test application
  *
- * This application configures UART 16550 to baud rate 9600.
- * PS7 UART (Zynq) is not initialized by this application, since
- * bootrom/bsp configures it to baud rate 115200
- *
- * ------------------------------------------------
- * | UART TYPE   BAUD RATE                        |
- * ------------------------------------------------
- *   uartns550   9600
- *   uartlite    Configurable only in HW design
- *   ps7_uart    115200 (configured by bootrom/bsp)
+ * This application initializes and configures XADC device 
+ * This application also configures UART to baud rate 115200.
+ * Lower 8-bits of the data returned from ADC device is sent via UART
  */
 
 #include <stdio.h>
@@ -56,7 +49,6 @@
 int main()
 {
 
-
     init_platform();
     xil_printf("Started\r\n");
     XAdcPs_Config *config;
@@ -65,15 +57,13 @@ int main()
     	xil_printf("FAILED\r\n");
     }
 
-
     XAdcPs driver;
     XAdcPs_CfgInitialize(&driver, config, config->BaseAddress);
 
     s16 rawData;
     float voltData;
     int status;
-    s16 test;
-	test = 0xFF43;
+
 
     XAdcPs_SetSequencerMode(&driver, XADCPS_SEQ_MODE_SINGCHAN);
     status = XAdcPs_SetSingleChParams(&driver, XADCPS_CH_VPVN, FALSE, FALSE, TRUE);
@@ -81,34 +71,18 @@ int main()
     	xil_printf("Error!\r\n");
     }
 
-	// UART config
-	XUartPs uart_dev;
-	XUartPs_Config *uart_config_ptr;
-	uart_config_ptr = XUartPs_LookupConfig(XPAR_XUARTPS_0_DEVICE_ID);
+    // UART config
+    XUartPs uart_dev;
+    XUartPs_Config *uart_config_ptr;
+    uart_config_ptr = XUartPs_LookupConfig(XPAR_XUARTPS_0_DEVICE_ID);
 
-	// XPAR_XUARTPS_1_DEVICE_ID
-	XUartPs_CfgInitialize(&uart_dev, uart_config_ptr, uart_config_ptr->BaseAddress);
+    // XPAR_XUARTPS_1_DEVICE_ID
+    XUartPs_CfgInitialize(&uart_dev, uart_config_ptr, uart_config_ptr->BaseAddress);
 
-	XUartPs_EnableUart(&uart_dev);
-	XUartPs_SetBaudRate(&uart_dev, 115200);
+    XUartPs_EnableUart(&uart_dev);
+    XUartPs_SetBaudRate(&uart_dev, 115200);
 
-
-//	XTime current_t, start_t;
-//	u64 elapsed_t;
-//	int count = 0;
-//
-//	elapsed_t = COUNTS_PER_SECOND;
-//	XTime_GetTime(&start_t);
-//	XTime_GetTime(&current_t);
-//	while ((current_t - start_t) < elapsed_t) {
-//		rawData = XAdcPs_GetAdcData(&driver, XADCPS_CH_VPVN);
-//		count++;
-//		XTime_GetTime(&current_t);
-//	}
-//
-//	xil_printf("Count: %d", count);
-
-
+	
     while(1) {
     	rawData = XAdcPs_GetAdcData(&driver, XADCPS_CH_VPVN);
     	rawData >>= 8;
@@ -117,6 +91,6 @@ int main()
     	XUartPs_Send(&uart_dev, &rawData, 1);
     }
 
-
+	
     cleanup_platform();
 }
