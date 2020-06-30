@@ -7,3 +7,9 @@ This is the final project of the course CprE 488 (Spring 2020)
 - ADC.c file also send the data over UART to the COM Port
 - Python file reads the data from the COM Port and converts the raw values to the actual voltage values
 - Using matplotlib GUI.py plots a real-time GUI that can display the input signal with some functionalities like buttons to pause, scale the signals
+
+
+
+Click on the image for the video
+
+[![Watch the video](https://img.youtube.com/vi/whZKpi4WGRw/hqdefault.jpg)](https://www.youtube.com/watch?v=whZKpi4WGRw)
